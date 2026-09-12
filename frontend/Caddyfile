@@ -4,7 +4,7 @@
   auto_https off
 }
 
-:{$PORT:3000} {
+:3000 {
   encode gzip zstd
 
   @health path /health
