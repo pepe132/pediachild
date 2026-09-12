@@ -1,0 +1,55 @@
+{
+  "name": "pediachild-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "API REST de PediaChild",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify:auth": "tsx src/database/verify-auth.ts",
+    "verify:appointments": "tsx src/database/verify-appointments.ts",
+    "verify:consultations": "tsx src/database/verify-consultations.ts",
+    "verify:clinical-history": "tsx src/database/verify-clinical-history.ts",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "db:create": "tsx src/database/create-database.ts",
+    "db:migrate": "tsx src/database/run-migrations.ts",
+    "db:revert": "tsx src/database/revert-migration.ts",
+    "seed:pediatrician": "tsx src/database/seeds/create-pediatrician.ts",
+    "seed:growth-demo": "tsx src/database/seeds/create-growth-demo.ts",
+    "approve:specialist": "tsx src/database/approve-specialist.ts"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "pg": "^8.23.0",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.31",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.4.1",
+    "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.13",
+    "typeorm-ts-node-commonjs": "^0.3.20",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}

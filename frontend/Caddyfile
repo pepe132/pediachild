@@ -1,0 +1,16 @@
+{
+  admin off
+  persist_config off
+  auto_https off
+}
+
+:{$PORT:3000} {
+  encode gzip zstd
+
+  @health path /health
+  respond @health 200
+
+  root * /srv
+  try_files {path} /index.html
+  file_server
+}
