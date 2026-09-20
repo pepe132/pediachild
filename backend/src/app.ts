@@ -37,6 +37,8 @@ import { createClinicalHistoryRouter } from './modules/clinical-histories/clinic
 import { ClinicalHistoryService, type ClinicalHistoryServiceContract } from './modules/clinical-histories/clinical-history.service';
 import { createGrowthRouter } from './modules/growth/growth.routes';
 import { GrowthService } from './modules/growth/growth.service';
+import { createAdminRouter } from './modules/admin/admin.routes';
+import { AdminService, type AdminServiceContract } from './modules/admin/admin.service';
 
 export function createApp(
   authService?: AuthServiceContract,
@@ -44,6 +46,7 @@ export function createApp(
   appointmentService?: AppointmentServiceContract,
   consultationService?: ConsultationServiceContract,
   clinicalHistoryService?: ClinicalHistoryServiceContract,
+  adminService?: AdminServiceContract,
 ) {
   const app = express();
   app.set('trust proxy', 1);
@@ -79,6 +82,7 @@ export function createApp(
 
   app.use('/api/v1/health', healthRouter);
   app.use('/api/v1/auth', createAuthRouter(resolvedAuthService));
+  app.use('/api/v1/admin', createAdminRouter(resolvedAuthService, adminService ?? new AdminService(appDataSource.getRepository(User), appDataSource.getRepository(Session))));
   app.use('/api/v1/patients', createPatientRouter(resolvedAuthService, resolvedPatientService));
   app.use('/api/v1/patients/:patientId/growth', createGrowthRouter(resolvedAuthService, new GrowthService(appDataSource)));
   app.use(

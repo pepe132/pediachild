@@ -50,7 +50,9 @@ export class AuthService implements AuthServiceContract {
     if (!user || !passwordIsValid) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'El correo, teléfono o contraseña son incorrectos.');
     }
-    if (!user.active || !user.approvedAt) throw new AppError(403, 'ACCOUNT_PENDING_APPROVAL', 'Tu cuenta está pendiente de validación profesional.');
+    if (user.rejectedAt) throw new AppError(403, 'ACCOUNT_REJECTED', 'La solicitud profesional fue rechazada.');
+    if (!user.approvedAt) throw new AppError(403, 'ACCOUNT_PENDING_APPROVAL', 'Tu cuenta está pendiente de validación profesional.');
+    if (!user.active) throw new AppError(403, 'ACCOUNT_SUSPENDED', 'La cuenta se encuentra suspendida.');
 
     const token = randomBytes(32).toString('base64url');
     const expiresAt = new Date(Date.now() + env.SESSION_TTL_HOURS * 60 * 60 * 1000);
@@ -73,7 +75,7 @@ export class AuthService implements AuthServiceContract {
     const existing = await this.users.createQueryBuilder('user').where('LOWER(user.email) = :email OR user.phone = :phone', { email: input.email, phone: input.phone }).getOne();
     if (existing) throw new AppError(409, 'ACCOUNT_ALREADY_EXISTS', 'Ya existe una cuenta con ese correo o teléfono.');
     const user = await this.users.manager.transaction(async (manager) => {
-      const saved = await manager.getRepository(User).save(manager.getRepository(User).create({ name: input.name, email: input.email, phone: input.phone, passwordHash: await hashPassword(input.password), role: UserRole.PEDIATRICIAN, active: false, approvedAt: null }));
+      const saved = await manager.getRepository(User).save(manager.getRepository(User).create({ name: input.name, email: input.email, phone: input.phone, passwordHash: await hashPassword(input.password), role: UserRole.PEDIATRICIAN, active: false, approvedAt: null, rejectedAt: null, rejectionReason: null, reviewedBy: null }));
       const profile = await manager.getRepository(SpecialistProfile).save(manager.getRepository(SpecialistProfile).create({ userId: saved.id, specialty: input.specialty, professionalLicense: input.professionalLicense, specialtyLicense: input.specialtyLicense || null, clinicName: input.clinicName || null, clinicPhone: input.clinicPhone || null, clinicAddress: input.clinicAddress || null }));
       saved.profile = profile; return saved;
     });

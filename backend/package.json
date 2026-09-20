@@ -20,6 +20,7 @@
     "db:revert": "tsx src/database/revert-migration.ts",
     "seed:pediatrician": "tsx src/database/seeds/create-pediatrician.ts",
     "seed:growth-demo": "tsx src/database/seeds/create-growth-demo.ts",
+    "seed:admin": "tsx src/database/seeds/create-admin.ts",
     "approve:specialist": "tsx src/database/approve-specialist.ts"
   },
   "engines": {

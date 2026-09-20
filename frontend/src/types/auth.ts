@@ -3,6 +3,6 @@ export interface User {
   name: string;
   email: string;
   phone?: string | null;
-  role: 'PEDIATRICIAN';
+  role: 'PEDIATRICIAN' | 'ADMIN';
   profile?: { specialty: string; professionalLicense: string; specialtyLicense: string | null; clinicName: string | null; clinicPhone: string | null; clinicAddress: string | null };
 }

@@ -22,7 +22,7 @@ export function LoginPage() {
     defaultValues: { identifier: '', password: '' },
   });
 
-  if (currentUser.data?.user) return <Navigate to="/patients" replace />;
+  if (currentUser.data?.user) return <Navigate to={currentUser.data.user.role === 'ADMIN' ? '/admin/specialists' : '/patients'} replace />;
   const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/patients';
   const apiMessage = loginMutation.error instanceof ApiError ? loginMutation.error.message : null;
 
@@ -39,8 +39,8 @@ export function LoginPage() {
       </section>
       <section className="login-panel">
         <form className="login-card" onSubmit={handleSubmit(async (values) => {
-          await loginMutation.mutateAsync(values);
-          navigate(from, { replace: true });
+          const result = await loginMutation.mutateAsync(values);
+          navigate(result.user.role === 'ADMIN' ? '/admin/specialists' : from, { replace: true });
         })} noValidate>
           <div className="login-card__heading">
             <p className="eyebrow">Bienvenido</p>
