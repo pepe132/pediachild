@@ -4,6 +4,7 @@ import { Session } from './session.entity';
 import { SpecialistProfile } from './specialist-profile.entity';
 
 export enum UserRole {
+  ADMIN = 'ADMIN',
   PEDIATRICIAN = 'PEDIATRICIAN',
 }
 
@@ -31,6 +32,10 @@ export class User {
 
   @Column({ name: 'approved_at', type: 'timestamptz', nullable: true })
   approvedAt!: Date | null;
+
+  @Column({ name: 'rejected_at', type: 'timestamptz', nullable: true }) rejectedAt!: Date | null;
+  @Column({ name: 'rejection_reason', type: 'varchar', length: 500, nullable: true }) rejectionReason!: string | null;
+  @Column({ name: 'reviewed_by', type: 'uuid', nullable: true }) reviewedBy!: string | null;
 
   @OneToMany(() => Session, (session) => session.user)
   sessions!: Session[];

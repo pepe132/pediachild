@@ -1,0 +1,7 @@
+import request from 'supertest'; import {describe,expect,it,vi} from 'vitest';
+import {createApp} from '../src/app'; import type {AuthServiceContract,PublicUser} from '../src/modules/auth/auth.service'; import type {AdminServiceContract} from '../src/modules/admin/admin.service';
+const admin:PublicUser={id:'11111111-1111-4111-8111-111111111111',name:'Admin',email:'admin@example.com',role:'ADMIN'};
+const pediatrician:PublicUser={...admin,role:'PEDIATRICIAN'};
+const auth=(user:PublicUser):AuthServiceContract=>({login:vi.fn(),authenticate:vi.fn().mockResolvedValue(user),logout:vi.fn()});
+const service=():AdminServiceContract=>({list:vi.fn().mockResolvedValue({data:[],pagination:{page:1,limit:20,total:0,totalPages:0}}),approve:vi.fn().mockResolvedValue({id:'22222222-2222-4222-8222-222222222222'}),reject:vi.fn(),suspend:vi.fn()});
+describe('admin endpoints',()=>{it('lists pending specialists for admins',async()=>{const s=service();const res=await request(createApp(auth(admin),undefined,undefined,undefined,undefined,s)).get('/api/v1/admin/specialists').set('Cookie','pediachild_session=x');expect(res.status).toBe(200);expect(s.list).toHaveBeenCalledWith('PENDING',1,20);});it('rejects a pediatrician',async()=>{const res=await request(createApp(auth(pediatrician),undefined,undefined,undefined,undefined,service())).get('/api/v1/admin/specialists').set('Cookie','pediachild_session=x');expect(res.status).toBe(403);expect(res.body.error.code).toBe('ADMIN_REQUIRED');});});

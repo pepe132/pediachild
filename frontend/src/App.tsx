@@ -14,6 +14,8 @@ import { PrescriptionPage } from './pages/PrescriptionPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
+import { AdminRoute } from './routes/AdminRoute';
+import { AdminSpecialistsPage } from './pages/AdminSpecialistsPage';
 
 export default function App() {
   return <Routes>
@@ -34,6 +36,7 @@ export default function App() {
         <Route path="/appointments/new" element={<AppointmentFormPage />} />
         <Route path="/appointments/:appointmentId/edit" element={<AppointmentFormPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route element={<AdminRoute />}><Route path="/admin/specialists" element={<AdminSpecialistsPage />} /></Route>
       </Route>
     </Route>
     <Route path="*" element={<Navigate to="/patients" replace />} />
