@@ -13,6 +13,10 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   SESSION_SECRET: z.string().min(32).default('development-only-secret-change-before-production'),
   SESSION_TTL_HOURS: z.coerce.number().int().positive().max(24 * 30).default(168),
+  MAIL_PROVIDER: z.enum(['disabled', 'console', 'resend']).default('disabled'),
+  RESEND_API_KEY: z.string().min(1).optional(),
+  MAIL_FROM: z.string().min(3).optional(),
+  PUBLIC_APP_URL: z.string().url().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -22,6 +26,12 @@ if (!parsedEnv.success) {
 }
 
 export const env = parsedEnv.data;
+
+if (env.MAIL_PROVIDER === 'resend' && (!env.RESEND_API_KEY || !env.MAIL_FROM)) {
+  throw new Error(
+    'RESEND_API_KEY and MAIL_FROM are required when MAIL_PROVIDER=resend.',
+  );
+}
 
 if (
   env.NODE_ENV === 'production' &&

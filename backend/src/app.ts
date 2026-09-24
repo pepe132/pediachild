@@ -39,6 +39,9 @@ import { createGrowthRouter } from './modules/growth/growth.routes';
 import { GrowthService } from './modules/growth/growth.service';
 import { createAdminRouter } from './modules/admin/admin.routes';
 import { AdminService, type AdminServiceContract } from './modules/admin/admin.service';
+import { ConfiguredMailService } from './modules/auth/mail.service';
+import { createPasswordRecoveryRouter } from './modules/auth/password-recovery.routes';
+import { PasswordRecoveryService } from './modules/auth/password-recovery.service';
 
 export function createApp(
   authService?: AuthServiceContract,
@@ -82,6 +85,12 @@ export function createApp(
 
   app.use('/api/v1/health', healthRouter);
   app.use('/api/v1/auth', createAuthRouter(resolvedAuthService));
+  app.use(
+    '/api/v1/auth',
+    createPasswordRecoveryRouter(
+      new PasswordRecoveryService(appDataSource, new ConfiguredMailService()),
+    ),
+  );
   app.use('/api/v1/admin', createAdminRouter(resolvedAuthService, adminService ?? new AdminService(appDataSource.getRepository(User), appDataSource.getRepository(Session))));
   app.use('/api/v1/patients', createPatientRouter(resolvedAuthService, resolvedPatientService));
   app.use('/api/v1/patients/:patientId/growth', createGrowthRouter(resolvedAuthService, new GrowthService(appDataSource)));
