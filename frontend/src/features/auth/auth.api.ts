@@ -21,3 +21,16 @@ export function logout() {
 export function changePassword(input: { currentPassword: string; newPassword: string }) {
   return apiRequest<void>('/auth/change-password', { method: 'POST', body: JSON.stringify(input) });
 }
+export function requestPasswordReset(identifier: string) {
+  return apiRequest<{ message: string }>('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ identifier }),
+  });
+}
+
+export function resetPassword(token: string, newPassword: string) {
+  return apiRequest<void>('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, newPassword }),
+  });
+}

@@ -57,6 +57,7 @@ export function LoginPage() {
             <input type="password" autoComplete="current-password" placeholder="Tu contraseña" {...register('password')} />
             {errors.password && <small className="field__error">{errors.password.message}</small>}
           </label>
+          <Link className="text-link" to="/forgot-password">¿Olvidaste tu contraseña?</Link>
           {apiMessage && <div className="alert alert--error" role="alert">{apiMessage}</div>}
           <button className="button button--primary button--wide" disabled={loginMutation.isPending}>
             {loginMutation.isPending ? 'Ingresando…' : 'Ingresar'}
