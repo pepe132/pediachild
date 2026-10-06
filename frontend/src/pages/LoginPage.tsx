@@ -4,6 +4,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { ApiError } from '../api/client';
 import { Brand } from '../components/Brand';
+import { PasswordInput } from '../components/PasswordInput';
 import { useCurrentUser, useLogin } from '../features/auth/use-auth';
 
 const schema = z.object({
@@ -54,7 +55,7 @@ export function LoginPage() {
           </label>
           <label className="field">
             <span>Contraseña</span>
-            <input type="password" autoComplete="current-password" placeholder="Tu contraseña" {...register('password')} />
+            <PasswordInput autoComplete="current-password" placeholder="Tu contraseña" {...register('password')} />
             {errors.password && <small className="field__error">{errors.password.message}</small>}
           </label>
           <Link className="text-link" to="/forgot-password">¿Olvidaste tu contraseña?</Link>

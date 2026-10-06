@@ -17,6 +17,7 @@ export function PrescriptionPage() {
   const historyQuery = useQuery({ queryKey: ['clinical-history', patientId], queryFn: () => getClinicalHistory(patientId), enabled: Boolean(patientId), retry: false });
   const [offsetX, setOffsetX] = useState(() => loadOffset('prescription-offset-x'));
   const [offsetY, setOffsetY] = useState(() => loadOffset('prescription-offset-y'));
+  const [fontScale, setFontScale] = useState(() => loadNumber('prescription-font-scale', 85));
 
   if (consultationQuery.isPending) return <div className="panel"><PageState title="Preparando receta…" /></div>;
   if (consultationQuery.isError) return <div className="panel"><PageState title="No pudimos preparar la receta">{consultationQuery.error instanceof ApiError ? consultationQuery.error.message : 'Intenta nuevamente.'}</PageState></div>;
@@ -33,14 +34,19 @@ export function PrescriptionPage() {
     if (axis === 'x') setOffsetX(safe);
     else setOffsetY(safe);
   };
+  const changeFontScale = (value: number) => {
+    const safe = Math.max(65, Math.min(100, Number.isFinite(value) ? value : 85));
+    localStorage.setItem('prescription-font-scale', String(safe));
+    setFontScale(safe);
+  };
 
   return <div className="page-stack prescription-page">
     <Link className="back-link" to={`/consultations/${consultationId}`}><ArrowLeft size={18} /> Volver a la consulta</Link>
-    <header className="page-header prescription-controls"><div><p className="eyebrow">Receta médica</p><h1>Vista previa de impresión</h1><p>Coloca la hoja preimpresa en orientación horizontal. Solamente se imprimirán los datos variables.</p></div><button className="button button--primary" onClick={() => window.print()}><Printer size={18} /> Imprimir receta</button></header>
-    <section className="panel calibration-panel prescription-controls"><div><SlidersHorizontal size={20} /><div><strong>Calibración de impresora</strong><p>Si el texto queda desplazado, corrige los milímetros y vuelve a imprimir.</p></div></div><label>Horizontal (mm)<input type="number" min="-15" max="15" step="0.5" value={offsetX} onChange={(event) => changeOffset('x', Number(event.target.value))} /></label><label>Vertical (mm)<input type="number" min="-15" max="15" step="0.5" value={offsetY} onChange={(event) => changeOffset('y', Number(event.target.value))} /></label></section>
+    <header className="page-header prescription-controls"><div><p className="eyebrow">Receta médica</p><h1>Vista previa de impresión</h1><p>Impresión en hoja Carta vertical; la receta se colocará en la mitad superior. Solamente se imprimirán los datos variables.</p></div><button type="button" className="button button--primary" onClick={() => window.print()}><Printer size={18} /> Imprimir receta</button></header>
+    <section className="panel calibration-panel prescription-controls"><div><SlidersHorizontal size={20} /><div><strong>Calibración de impresora</strong><p>Ajusta la posición y el tamaño del texto antes de imprimir.</p></div></div><label>Letra (%)<input type="number" min="65" max="100" step="5" value={fontScale} onChange={(event) => changeFontScale(Number(event.target.value))} /></label><label>Horizontal (mm)<input type="number" min="-15" max="15" step="0.5" value={offsetX} onChange={(event) => changeOffset('x', Number(event.target.value))} /></label><label>Vertical (mm)<input type="number" min="-15" max="15" step="0.5" value={offsetY} onChange={(event) => changeOffset('y', Number(event.target.value))} /></label></section>
     {consultation.treatments.length === 0 && <div className="alert alert--error prescription-controls">Esta consulta no tiene tratamientos. La receta se imprimirá sin indicaciones.</div>}
     <div className="prescription-preview-wrap">
-      <article className={`prescription-sheet ${consultation.treatments.length > 5 ? 'prescription-sheet--compact' : ''}`} style={{ '--offset-x': `${offsetX}mm`, '--offset-y': `${offsetY}mm` } as React.CSSProperties}>
+      <article className={`prescription-sheet ${consultation.treatments.length > 5 ? 'prescription-sheet--compact' : ''}`} style={{ '--offset-x': `${offsetX}mm`, '--offset-y': `${offsetY}mm`, '--font-scale': fontScale / 100 } as React.CSSProperties}>
         <span className="prescription-value prescription-patient">{patient.firstName} {patient.lastName}</span>
         <span className="prescription-value prescription-age">{formatPatientAge(consultation.patientAgeValue, consultation.patientAgeUnit)}</span>
         <span className="prescription-value prescription-date">{dateFormatter.format(new Date(consultation.consultationDate))}</span>
@@ -63,3 +69,4 @@ export function PrescriptionPage() {
 
 function number(value: number | null | undefined, unit: string) { return value == null ? '' : `${value}${unit ? ` ${unit}` : ''}`; }
 function loadOffset(key: string) { const value = Number(localStorage.getItem(key)); return Number.isFinite(value) ? value : 0; }
+function loadNumber(key: string, fallback: number) { const stored = localStorage.getItem(key); if (stored === null) return fallback; const value = Number(stored); return Number.isFinite(value) ? value : fallback; }
