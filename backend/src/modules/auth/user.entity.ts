@@ -1,49 +1,80 @@
-import { Column, CreateDateColumn, Entity, Index, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
-import { Session } from './session.entity';
-import { SpecialistProfile } from './specialist-profile.entity';
+import { Session } from "./session.entity";
+import { SpecialistProfile } from "./specialist-profile.entity";
 
 export enum UserRole {
-  ADMIN = 'ADMIN',
-  PEDIATRICIAN = 'PEDIATRICIAN',
+  ADMIN = "ADMIN",
+  PEDIATRICIAN = "PEDIATRICIAN",
 }
 
-@Entity({ name: 'users' })
+@Entity({ name: "users" })
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({ type: 'varchar', length: 120 })
+  @Column({ type: "varchar", length: 120 })
   name!: string;
 
   @Index({ unique: true })
-  @Column({ type: 'varchar', length: 254 })
+  @Column({ type: "varchar", length: 254 })
   email!: string;
-  @Column({ type: 'varchar', length: 20, nullable: true }) phone!: string | null;
+  @Column({ type: "varchar", length: 20, nullable: true }) phone!:
+    | string
+    | null;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255, select: false })
+  @Column({
+    name: "password_hash",
+    type: "varchar",
+    length: 255,
+    select: false,
+  })
   passwordHash!: string;
 
-  @Column({ type: 'enum', enum: UserRole, enumName: 'user_role', default: UserRole.PEDIATRICIAN })
+  @Column({
+    type: "enum",
+    enum: UserRole,
+    enumName: "user_role",
+    default: UserRole.PEDIATRICIAN,
+  })
   role!: UserRole;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: "boolean", default: true })
   active!: boolean;
 
-  @Column({ name: 'approved_at', type: 'timestamptz', nullable: true })
+  @Column({ name: "approved_at", type: "timestamptz", nullable: true })
   approvedAt!: Date | null;
 
-  @Column({ name: 'rejected_at', type: 'timestamptz', nullable: true }) rejectedAt!: Date | null;
-  @Column({ name: 'rejection_reason', type: 'varchar', length: 500, nullable: true }) rejectionReason!: string | null;
-  @Column({ name: 'reviewed_by', type: 'uuid', nullable: true }) reviewedBy!: string | null;
+  @Column({ name: "rejected_at", type: "timestamptz", nullable: true })
+  rejectedAt!: Date | null;
+  @Column({
+    name: "rejection_reason",
+    type: "varchar",
+    length: 500,
+    nullable: true,
+  })
+  rejectionReason!: string | null;
+  @Column({ name: "reviewed_by", type: "uuid", nullable: true }) reviewedBy!:
+    | string
+    | null;
 
   @OneToMany(() => Session, (session) => session.user)
   sessions!: Session[];
-  @OneToOne(() => SpecialistProfile, (profile) => profile.user, { eager: true }) profile!: SpecialistProfile;
+  @OneToOne(() => SpecialistProfile, (profile) => profile.user, { eager: true })
+  profile!: SpecialistProfile;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 }

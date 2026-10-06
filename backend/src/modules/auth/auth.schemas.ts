@@ -14,7 +14,7 @@ export const registerSchema = z.object({
   email: z.string().trim().toLowerCase().email('Escribe un correo electrónico válido.').max(254), phone,
   password: z.string().min(12, 'La contraseña debe tener al menos 12 caracteres.').max(128),
   specialty: z.string().trim().min(2, 'Selecciona una especialidad.').max(150),
-  professionalLicense: z.string().trim().min(1, 'Escribe la cédula profesional.').max(100, 'La cédula es demasiado larga.'),
+  professionalLicense: z.string().trim().transform((value) => value.replace(/[\s-]/g, '')).pipe(z.string().regex(/^\d{6,14}$/, 'La cédula profesional debe contener entre 6 y 14 dígitos.')),
   specialtyLicense: z.string().trim().max(100).nullable().optional(), clinicName: z.string().trim().max(200).nullable().optional(), clinicPhone: phone.nullable().optional(), clinicAddress: z.string().trim().max(1000).nullable().optional(),
 });
 export const changePasswordSchema = z.object({

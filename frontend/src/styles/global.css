@@ -48,6 +48,11 @@ h2 { margin-bottom: .35rem; letter-spacing: -.025em; }
 .field input, .field select, .field textarea, .search-field input, .date-filters input { min-height: 46px; padding: .75rem .9rem; color: var(--ink); background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; outline: none; transition: border-color .2s, box-shadow .2s; }
 .field textarea { resize: vertical; line-height: 1.55; }
 .field input:focus, .field select:focus, .field textarea:focus, .search-field:focus-within, .date-filters input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, .14); }
+.password-input { position: relative; display: block; }
+.password-input input { width: 100%; padding-right: 3rem; }
+.password-input__toggle { position: absolute; top: 50%; right: .35rem; z-index: 2; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; color: var(--muted); background: transparent; border: 0; border-radius: 8px; cursor: pointer; transform: translateY(-50%); }
+.password-input__toggle:hover { color: var(--primary-dark); background: var(--primary-soft); }
+.password-input__toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .field b { color: var(--danger); }
 .field em { float: right; color: var(--muted); font-size: .72rem; font-style: normal; font-weight: 500; }
 .field__error { color: var(--danger); font-weight: 500; }
@@ -251,24 +256,25 @@ h2 { margin-bottom: .35rem; letter-spacing: -.025em; }
 .calibration-panel label { display: grid; gap: .3rem; color: var(--muted); font-size: .72rem; font-weight: 700; }
 .calibration-panel input { width: 115px; min-height: 40px; padding: .5rem .65rem; border: 1px solid #cadada; border-radius: 9px; }
 .prescription-preview-wrap { overflow: auto; padding: 1.2rem; background: #dfe7e7; border-radius: 16px; }
-.prescription-sheet { --offset-x: 0mm; --offset-y: 0mm; position: relative; width: 8.5in; height: 5.5in; margin: auto; overflow: hidden; color: #182427; background: #fff; border: 1px dashed #8ca0a3; box-shadow: 0 12px 32px rgba(20,42,46,.15); font-family: Arial, sans-serif; transform: translate(var(--offset-x), var(--offset-y)); transform-origin: top left; }
+.prescription-sheet { --offset-x: 0mm; --offset-y: 0mm; --font-scale: .85; position: relative; width: 8.5in; height: 5.5in; margin: auto; overflow: hidden; color: #182427; background: #fff; border: 1px dashed #8ca0a3; box-shadow: 0 12px 32px rgba(20,42,46,.15); font-family: Arial, sans-serif; transform: translate(var(--offset-x), var(--offset-y)); transform-origin: top left; }
+.prescription-value, .prescription-side-values, .prescription-treatments, .prescription-diagnoses { z-index: 1; }
 .prescription-sheet::before { position: absolute; inset: 0; content: ''; background: linear-gradient(90deg, transparent 87.5%, rgba(19,124,139,.035) 87.5%); pointer-events: none; }
-.prescription-value { position: absolute; overflow: hidden; white-space: nowrap; font-size: 10.5pt; }
-.prescription-patient { top: 1.38in; left: .92in; width: 4.75in; }
+.prescription-value { position: absolute; overflow: hidden; white-space: nowrap; font-size: calc(10.5pt * var(--font-scale)); }
+.prescription-patient { top: 1.38in; left: 1.20in; width: 4.47in; }
 .prescription-age { top: 1.38in; left: 6.27in; width: .62in; text-align: center; }
-.prescription-date { top: 1.38in; left: 7.47in; width: .88in; font-size: 9pt; text-align: center; }
-.prescription-side-values { position: absolute; top: 1.66in; left: 7.45in; width: .87in; margin: 0; font-size: 8pt; line-height: .19in; }
-.prescription-side-values div { display: grid; grid-template-columns: 0 1fr; height: .19in; }
+.prescription-date { top: 1.38in; left: 7.47in; width: .88in; font-size: calc(9pt * var(--font-scale)); text-align: center; }
+.prescription-side-values { position: absolute; top: 1.58in; left: 7.29in; width: .87in; margin: 0; font-size: calc(8pt * var(--font-scale)); line-height: .19in; }
+.prescription-side-values div { display: grid; grid-template-columns: 0 1fr; align-items: center; height: .19in; }
 .prescription-side-values dt { overflow: hidden; opacity: 0; }
 .prescription-side-values dd { min-width: 0; margin: 0; overflow: hidden; white-space: nowrap; text-align: center; }
 .prescription-side-values div:last-child { height: .36in; line-height: .13in; }
 .prescription-side-values div:last-child dd { padding-top: .02in; white-space: normal; }
-.prescription-treatments { position: absolute; top: 1.88in; left: .65in; width: 6.25in; max-height: 2.78in; padding-left: .25in; margin: 0; overflow: hidden; font-size: 10.5pt; line-height: 1.28; }
+.prescription-treatments { position: absolute; top: 1.88in; left: .65in; width: 6.25in; max-height: 2.78in; padding-left: .25in; margin: 0; overflow: hidden; font-size: calc(10.5pt * var(--font-scale)); line-height: 1.2; }
 .prescription-treatments li { padding-left: .05in; margin-bottom: .14in; }
 .prescription-treatments strong, .prescription-treatments span { display: block; }
-.prescription-sheet--compact .prescription-treatments { font-size: 8.5pt; line-height: 1.18; }
+.prescription-sheet--compact .prescription-treatments { font-size: calc(8.5pt * var(--font-scale)); line-height: 1.12; }
 .prescription-sheet--compact .prescription-treatments li { margin-bottom: .08in; }
-.prescription-diagnoses { position: absolute; top: 5.02in; left: .72in; width: 2.65in; max-height: .28in; overflow: hidden; font-size: 8.5pt; line-height: 1.15; }
+.prescription-diagnoses { position: absolute; top: 4.97in; left: .98in; width: 2.39in; max-height: .28in; overflow: hidden; font-size: calc(8.5pt * var(--font-scale)); line-height: 1.15; }
 
 @media (max-width: 860px) {
   .login-page { grid-template-columns: 1fr; }
@@ -343,12 +349,12 @@ h2 { margin-bottom: .35rem; letter-spacing: -.025em; }
   .patients-table td:last-child { margin-top: .6rem; }
 }
 
-@page { size: 8.5in 5.5in; margin: 0; }
+@page { size: 8.5in 11in; margin: 0; }
 @media print {
-  html, body, #root, .app-shell, .app-main, .content, .prescription-page { width: 8.5in; height: 5.5in; min-width: 0; margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  html, body, #root, .app-shell, .app-main, .content, .prescription-page { width: 8.5in; height: 11in; min-width: 0; margin: 0 !important; padding: 0 !important; background: #fff !important; }
   .sidebar, .topbar, .sidebar-backdrop, .prescription-controls, .prescription-page > .back-link { display: none !important; }
   .app-shell { display: block; }
-  .prescription-preview-wrap { width: 8.5in; height: 5.5in; padding: 0; overflow: hidden; background: transparent; border-radius: 0; }
+  .prescription-preview-wrap { width: 8.5in; height: 11in; padding: 0; overflow: hidden; background: transparent; border-radius: 0; }
   .prescription-sheet { margin: 0; border: 0; box-shadow: none; print-color-adjust: exact; }
   .prescription-sheet::before { display: none; }
 }

@@ -2,25 +2,26 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { Brand } from '../components/Brand';
+import { PasswordInput } from '../components/PasswordInput';
 import { registerSpecialist } from '../features/auth/auth.api';
 
 const specialties = [
   'Pediatría',
-  'Medicina general',
-  'Medicina familiar',
-  'Medicina interna',
-  'Ginecología y obstetricia',
-  'Cardiología',
-  'Dermatología',
-  'Endocrinología',
-  'Gastroenterología',
-  'Neurología',
-  'Oftalmología',
-  'Otorrinolaringología',
-  'Psiquiatría',
-  'Traumatología y ortopedia',
-  'Urología',
-  'Otra',
+  // 'Medicina general',
+  // 'Medicina familiar',
+  // 'Medicina interna',
+  // 'Ginecología y obstetricia',
+  // 'Cardiología',
+  // 'Dermatología',
+  // 'Endocrinología',
+  // 'Gastroenterología',
+  // 'Neurología',
+  // 'Oftalmología',
+  // 'Otorrinolaringología',
+  // 'Psiquiatría',
+  // 'Traumatología y ortopedia',
+  // 'Urología',
+  // 'Otra',
 ] as const;
 
 export function RegisterPage() {
@@ -52,7 +53,7 @@ export function RegisterPage() {
             email: String(data.get('email')),
             phone: String(data.get('phone')),
             specialty: String(data.get('specialty')),
-            professionalLicense: String(data.get('professionalLicense')),
+            professionalLicense: String(data.get('professionalLicense')).replace(/[\s-]/g, ''),
             specialtyLicense: String(data.get('specialtyLicense')) || null,
             clinicName: String(data.get('clinicName')) || null,
             clinicPhone: null,
@@ -80,7 +81,7 @@ export function RegisterPage() {
         <div className="form-grid">
           <label className="field">
             <span>Nombre completo</span>
-            <input name="name" required minLength={2} />
+            <input name="name" required minLength={2} maxLength={100} pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"/>
           </label>
           <label className="field">
             <span>Especialidad</span>
@@ -92,15 +93,31 @@ export function RegisterPage() {
         </div>
 
         <div className="form-grid">
-          <label className="field"><span>Correo</span><input name="email" type="email" required /></label>
-          <label className="field"><span>Teléfono</span><input name="phone" type="tel" required inputMode="numeric" pattern="[0-9]{10}" minLength={10} maxLength={10} placeholder="4491234567" /></label>
+          <label className="field">
+            <span>Correo</span>
+            <input 
+              name="email" 
+              type="email" 
+              required
+              placeholder="usuario@dominio.com"
+              autoComplete='email'
+              minLength={5}
+              maxLength={100}
+
+              />
+          </label>
+
+          <label className="field">
+            <span>Teléfono</span>
+            <input name="phone" type="tel" required inputMode="numeric" pattern="[0-9]{10}" minLength={10} maxLength={10} placeholder="4491234567" />
+          </label>
         </div>
         <div className="form-grid">
-          <label className="field"><span>Cédula profesional</span><input name="professionalLicense" required /></label>
+          <label className="field"><span>Cédula profesional</span><input name="professionalLicense" required inputMode="numeric" pattern="[0-9]{6,14}" minLength={6} maxLength={14} /></label>
           <label className="field"><span>Cédula de especialidad</span><input name="specialtyLicense" /></label>
         </div>
         <label className="field"><span>Consultorio</span><input name="clinicName" /></label>
-        <label className="field"><span>Contraseña</span><input name="password" type="password" minLength={12} required autoComplete="new-password" /><small>Mínimo 12 caracteres.</small></label>
+        <label className="field"><span>Contraseña</span><PasswordInput name="password" minLength={12} required autoComplete="new-password" /><small>Mínimo 12 caracteres.</small></label>
         {error && <div className="alert alert--error">{error}</div>}
         <button className="button button--primary button--wide" disabled={busy}>{busy ? 'Creando cuenta…' : 'Crear cuenta'}</button>
         <p className="auth-switch">¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link></p>
