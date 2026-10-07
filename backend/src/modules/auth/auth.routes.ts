@@ -20,6 +20,19 @@ const loginLimiter = rateLimit({
   },
 });
 
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: {
+    error: {
+      code: 'TOO_MANY_REGISTER_ATTEMPTS',
+      message: 'Demasiados registros. Intenta nuevamente mÃ¡s tarde.',
+    },
+  },
+});
+
 function cookieOptions(expires?: Date) {
   return {
     httpOnly: true,
@@ -32,7 +45,7 @@ function cookieOptions(expires?: Date) {
 
 export function createAuthRouter(authService: AuthServiceContract) {
   const router = Router();
-  router.post('/register', loginLimiter, async (request, response, next) => {
+  router.post('/register', registerLimiter, async (request, response, next) => {
     try {
       if (!authService.register) throw new AppError(501, 'REGISTRATION_UNAVAILABLE', 'El registro no está disponible.');
       const user = await authService.register(registerSchema.parse(request.body));
