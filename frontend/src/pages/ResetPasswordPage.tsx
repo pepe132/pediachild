@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { Brand } from '../components/Brand';
+import { PasswordInput } from '../components/PasswordInput';
 import { resetPassword } from '../features/auth/auth.api';
 
 export function ResetPasswordPage() {
@@ -72,8 +73,7 @@ export function ResetPasswordPage() {
               )}
               <label className="field">
                 <span>Nueva contraseña</span>
-                <input
-                  type="password"
+                <PasswordInput
                   required
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
@@ -82,8 +82,7 @@ export function ResetPasswordPage() {
               </label>
               <label className="field">
                 <span>Confirmar contraseña</span>
-                <input
-                  type="password"
+                <PasswordInput
                   required
                   value={confirmation}
                   onChange={(event) => setConfirmation(event.target.value)}
