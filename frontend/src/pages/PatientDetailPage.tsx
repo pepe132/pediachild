@@ -1,10 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, BookOpen, CalendarPlus, ChevronRight, Edit3, UserRound } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { ArrowLeft, BookOpen, CalendarPlus, ChevronRight, Edit3, Ruler, UserRound } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { formatPatientAge } from '../components/PatientAge';
 import { PageState } from '../components/PageState';
 import { listPatientConsultations } from '../features/consultations/consultations.api';
+import { createConsultation } from '../features/consultations/consultations.api';
 import { listAppointments } from '../features/appointments/appointments.api';
 import { getPatient } from '../features/patients/patients.api';
 import { getPatientGrowth } from '../features/growth/growth.api';
@@ -44,6 +46,7 @@ export function PatientDetailPage() {
       <article className="panel empty-module"><h2>Historia clínica</h2><p>Antecedentes heredofamiliares, perinatales, nutricionales, patológicos y de vacunación.</p><Link className="button button--ghost history-card__action" to={`/patients/${record.id}/clinical-history`}><BookOpen size={17} /> Abrir historia clínica</Link></article>
     </section>
     {growth.data && <GrowthCharts data={growth.data} />}
+    <QuickGrowthEntry patientId={record.id} ageValue={record.ageValue} ageUnit={record.ageUnit} />
     <section className="panel"><div className="panel__heading"><div><h2>Consultas</h2><p>{consultations.data ? `${consultations.data.pagination.total} en el historial` : 'Historial clínico del paciente'}</p></div><Link className="button button--ghost" to={`/patients/${record.id}/consultations/new`}><CalendarPlus size={17} /> Agregar</Link></div>
       {consultations.isPending && <PageState title="Cargando consultas…" />}
       {consultations.isError && <PageState title="No pudimos cargar las consultas">Intenta nuevamente.</PageState>}
@@ -62,5 +65,32 @@ export function PatientDetailPage() {
     </section>
   </div>;
 }
+
+function QuickGrowthEntry({ patientId, ageValue, ageUnit }: { patientId: string; ageValue: number; ageUnit: 'DAYS' | 'MONTHS' | 'YEARS' }) {
+  const queryClient = useQueryClient();
+  const [date, setDate] = useState(localDateTime());
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
+  const [head, setHead] = useState('');
+  const [position, setPosition] = useState<'RECUMBENT_LENGTH' | 'STANDING_HEIGHT' | ''>('');
+  const [message, setMessage] = useState('');
+  const mutation = useMutation({
+    mutationFn: () => createConsultation(patientId, {
+      consultationDate: new Date(date).toISOString(), patientAgeValue: ageValue, patientAgeUnit: ageUnit,
+      reason: 'Seguimiento de crecimiento', currentIllness: null, physicalExamination: null, notes: null, laboratoryNotes: null, imagingNotes: null,
+      diagnoses: [], treatments: [], vitalSigns: null,
+      anthropometricMeasurement: { weightKg: numberOrNull(weight), lengthHeightCm: numberOrNull(height), headCircumferenceCm: numberOrNull(head), measurementPosition: height ? (position || null) : null, weightForAgePercentile: null, weightForLengthHeightPercentile: null, lengthHeightForAgePercentile: null, nutritionalDiagnosis: null },
+    }),
+    onSuccess: async () => { setWeight(''); setHeight(''); setHead(''); setPosition(''); setMessage('Medición guardada. Puedes registrar la siguiente sin salir de esta página.'); await queryClient.invalidateQueries({ queryKey: ['growth', patientId] }); await queryClient.invalidateQueries({ queryKey: ['consultations', patientId] }); },
+  });
+  const submit = (event: React.FormEvent) => { event.preventDefault(); setMessage(''); if (!weight && !height && !head) { setMessage('Captura al menos una medición.'); return; } if (height && !position) { setMessage('Selecciona si la talla fue acostado o de pie.'); return; } mutation.mutate(); };
+  return <section className="panel quick-growth-entry"><div className="panel__heading"><div><h2><Ruler size={19} /> Registrar nueva medición</h2><p>Guarda el siguiente registro sin salir del expediente.</p></div></div>
+    <form onSubmit={submit} className="quick-growth-form"><label className="field"><span>Fecha y hora</span><input type="datetime-local" value={date} onChange={(event) => setDate(event.target.value)} /></label><label className="field"><span>Peso (kg)</span><input type="number" min="0" max="500" step="0.001" value={weight} onChange={(event) => setWeight(event.target.value)} /></label><label className="field"><span>Talla (cm)</span><input type="number" min="0" max="300" step="0.01" value={height} onChange={(event) => setHeight(event.target.value)} /></label><label className="field"><span>Perímetro cefálico (cm)</span><input type="number" min="0" max="100" step="0.01" value={head} onChange={(event) => setHead(event.target.value)} /></label>{height && <label className="field"><span>Tipo de medición</span><select value={position} onChange={(event) => setPosition(event.target.value as typeof position)}><option value="">Selecciona</option><option value="RECUMBENT_LENGTH">Acostado</option><option value="STANDING_HEIGHT">De pie</option></select></label>}<button className="button button--primary" disabled={mutation.isPending}>{mutation.isPending ? 'Guardando…' : 'Guardar medición'}</button></form>
+    {message && <p className={mutation.isError ? 'field__error' : 'form-note'}>{mutation.isError ? 'No fue posible guardar la medición.' : message}</p>}
+  </section>;
+}
+
+function localDateTime() { const value = new Date(); value.setMinutes(value.getMinutes() - value.getTimezoneOffset()); return value.toISOString().slice(0, 16); }
+function numberOrNull(value: string) { return value.trim() ? Number(value) : null; }
 
 const patientAppointmentStatus = { SCHEDULED: 'Programada', CONFIRMED: 'Confirmada', COMPLETED: 'Atendida', CANCELLED: 'Cancelada', NO_SHOW: 'Inasistencia' } as const;

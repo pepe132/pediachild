@@ -12,6 +12,7 @@ export interface GrowthResponse {
     values: Record<GrowthIndicator, number | null>;
     percentiles: Record<GrowthIndicator, { zScore: number; percentile: number } | null>;
   }>;
+  baseline?: { measuredAt: string; values: Record<GrowthIndicator, number | null> };
   charts: Array<{ indicator: GrowthIndicator; unit: string; curves: Array<{ percentile: number; points: GrowthPoint[] }> }>;
 }
 export const getPatientGrowth = (patientId: string) => apiRequest<GrowthResponse>(`/patients/${patientId}/growth`);

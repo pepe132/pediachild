@@ -20,10 +20,19 @@ export class GrowthService {
     if (missing.length) return { available: false, missing, patient, observations: [], charts: [] };
 
     const perinatal = await this.dataSource.query(`
-      SELECT ph.gestational_age_weeks AS "weeks", ph.gestational_age_days AS "days"
+      SELECT ph.gestational_age_weeks AS "weeks", ph.gestational_age_days AS "days",
+        ph.birth_weight_grams AS "birthWeightGrams", ph.birth_length_cm AS "birthLengthCm"
       FROM clinical_histories ch JOIN perinatal_histories ph ON ph.clinical_history_id = ch.id
       WHERE ch.patient_id = $1 LIMIT 1`, [patientId]);
     const gestationalDays = perinatal[0]?.weeks == null ? null : Number(perinatal[0].weeks) * 7 + Number(perinatal[0].days ?? 0);
+    const baseline = {
+      measuredAt: patient.dateOfBirth,
+      values: {
+        weight: perinatal[0]?.birthWeightGrams == null ? null : Number(perinatal[0].birthWeightGrams) / 1000,
+        height: perinatal[0]?.birthLengthCm == null ? null : Number(perinatal[0].birthLengthCm),
+        head: null,
+      },
+    };
     const measurements = await this.dataSource.query(`
       SELECT c.id AS "consultationId", c.consultation_date AS "measuredAt",
         a.weight_kg AS "weightKg", a.length_height_cm AS "heightCm", a.head_circumference_cm AS "headCm"
@@ -50,7 +59,7 @@ export class GrowthService {
       unit: indicator === 'weight' ? 'kg' : 'cm',
       curves: curvePercentiles.map((percentile) => ({ percentile, points: referencePoints(indicator, sex, percentile) })),
     }));
-    return { available: true, missing: [], patient, gestationalAgeDays: gestationalDays, observations, charts, source: who.source };
+    return { available: true, missing: [], patient, gestationalAgeDays: gestationalDays, baseline, observations, charts, source: who.source };
   }
 }
 
